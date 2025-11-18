@@ -28,3 +28,17 @@ export interface ICustomer {
 }
 
 export interface IBuyer extends ICustomer {}
+
+export interface IProductListResponse {
+  total: number;
+  items: IProduct[];
+}
+
+export interface IOrderRequest extends ICustomer {
+  items: string[];
+}
+
+export interface IOrderResponse {
+  id: string;
+  total: number;
+}

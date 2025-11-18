@@ -4,14 +4,57 @@ import { Cart } from "./components/models/card";
 import { Customer } from "./components/models/customer";
 import { Product } from "./components/models/product";
 import "./scss/styles.scss";
-import { API_URL } from "./utils/constants";
+import { IProduct } from "./types";
+import { API_URL, CDN_URL, categoryMap } from "./utils/constants";
 import { apiProducts } from "./utils/data";
 
 // --- Каталог товаров ---
 const catalogModel = new Product();
 catalogModel.setProducts(apiProducts.items);
+const galleryElement = document.querySelector<HTMLElement>(".gallery");
+const cardTemplate =
+  document.querySelector<HTMLTemplateElement>("#card-catalog");
+
+const formatPrice = (price: number | null) =>
+  price === null ? "Бесценно" : `${price} синапсов`;
+
+const renderCatalog = (items: IProduct[]) => {
+  if (!galleryElement || !cardTemplate) return;
+  galleryElement.innerHTML = "";
+
+  items.forEach((product) => {
+    const fragment = cardTemplate.content.firstElementChild?.cloneNode(
+      true
+    ) as HTMLElement;
+    if (!fragment) return;
+
+    const categoryElement =
+      fragment.querySelector<HTMLElement>(".card__category");
+    const titleElement = fragment.querySelector<HTMLElement>(".card__title");
+    const imageElement =
+      fragment.querySelector<HTMLImageElement>(".card__image");
+    const priceElement = fragment.querySelector<HTMLElement>(".card__price");
+
+    if (categoryElement) {
+      categoryElement.textContent = product.category;
+      const modifier =
+        categoryMap[product.category as keyof typeof categoryMap];
+      categoryElement.className = `card__category ${modifier ?? ""}`.trim();
+    }
+
+    if (titleElement) titleElement.textContent = product.title;
+    if (imageElement) {
+      imageElement.src = `${CDN_URL}${product.image}`;
+      imageElement.alt = product.title;
+    }
+    if (priceElement) priceElement.textContent = formatPrice(product.price);
+
+    galleryElement.append(fragment);
+  });
+};
 
 console.log("Массив товаров из каталога:", catalogModel.getProducts());
+renderCatalog(catalogModel.getProducts());
 
 // Выбор первого товара
 const firstProduct = apiProducts.items[0];
@@ -58,6 +101,7 @@ apiClient
   .then((products) => {
     catalogModel.setProducts(products);
     console.log("Каталог с сервера:", catalogModel.getProducts());
+    renderCatalog(products);
   })
   .catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
