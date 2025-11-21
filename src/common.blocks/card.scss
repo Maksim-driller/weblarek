@@ -85,4 +85,14 @@
   }
   &__price {
   }
+
+  &__button {
+    min-width: 120px;
+
+    &_disabled,
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
 }
