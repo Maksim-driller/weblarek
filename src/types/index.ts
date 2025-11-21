@@ -27,8 +27,6 @@ export interface ICustomer {
   address: string;
 }
 
-export interface IBuyer extends ICustomer {}
-
 export interface IProductListResponse {
   total: number;
   items: IProduct[];

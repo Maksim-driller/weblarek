@@ -32,8 +32,4 @@ export class Cart {
     getTotal(): number {
         return this.items.reduce((total, item) => total + (item.price ?? 0), 0);
     }
-
-    get totalPrice(): number {
-        return this.items.reduce((total, item) => total + (item.price ?? 0), 0);
-    }
 }
