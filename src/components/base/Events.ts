@@ -63,22 +63,22 @@ export class EventEmitter implements IEvents {
     }
 
     /**
-     * Слушать все события
-     */
+    * Слушать все события
+    */
     onAll(callback: (event: EmitterEvent) => void) {
         this.on("*", callback);
     }
 
     /**
-     * Сбросить все обработчики
-     */
+    * Сбросить все обработчики
+    */
     offAll() {
         this._events = new Map<string, Set<Subscriber>>();
     }
 
     /**
-     * Сделать коллбек триггер, генерирующий событие при вызове
-     */
+    * Сделать коллбек триггер, генерирующий событие при вызове
+    */
     trigger<T extends object>(eventName: string, context?: Partial<T>) {
         return (event: object = {}) => {
             this.emit(eventName, {
