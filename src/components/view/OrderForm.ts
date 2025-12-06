@@ -12,8 +12,6 @@ export class OrderForm extends Form {
         this._cardButton = container.querySelector('button[name="card"]') as HTMLButtonElement;
         this._cashButton = container.querySelector('button[name="cash"]') as HTMLButtonElement;
         this._addressInput = container.querySelector('input[name="address"]') as HTMLInputElement;
-
-        // Слушатели на кнопки выбора оплаты
         this._cardButton.addEventListener('click', () => {
             this.payment = 'card';
             this.events.emit('order:payment', { payment: 'card' });
@@ -26,11 +24,8 @@ export class OrderForm extends Form {
     }
 
     set payment(value: 'card' | 'cash') {
-        // Убираем активный класс с обеих кнопок
         this._cardButton.classList.remove('button_alt-active');
         this._cashButton.classList.remove('button_alt-active');
-
-        // Добавляем активный класс к выбранной кнопке
         if (value === 'card') {
             this._cardButton.classList.add('button_alt-active');
         } else {

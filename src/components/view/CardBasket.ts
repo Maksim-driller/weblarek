@@ -10,8 +10,6 @@ export class CardBasket extends Card {
 
         this._index = container.querySelector('.basket__item-index') as HTMLElement;
         this._deleteButton = container.querySelector('.basket__item-delete') as HTMLButtonElement;
-
-        // Клик на кнопку удаления
         this._deleteButton.addEventListener('click', () => {
             this.events.emit('basket:remove', { id: this._id });
         });

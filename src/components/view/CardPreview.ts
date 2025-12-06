@@ -15,8 +15,6 @@ export class CardPreview extends Card {
         this._category = container.querySelector('.card__category') as HTMLElement;
         this._description = container.querySelector('.card__text') as HTMLElement;
         this._button = container.querySelector('.card__button') as HTMLButtonElement;
-
-        // Клик на кнопку "В корзину"
         this._button.addEventListener('click', () => {
             this.events.emit('card:toBasket', { id: this._id });
         });

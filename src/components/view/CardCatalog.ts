@@ -13,15 +13,11 @@ export class CardCatalog extends Card {
         this._category = container.querySelector('.card__category') as HTMLElement;
         this._image = container.querySelector('.card__image') as HTMLImageElement;
         this._button = container.querySelector('.card__button') as HTMLButtonElement;
-
-        // Клик на карточку (не на кнопку)
         container.addEventListener('click', (event) => {
             if (event.target !== this._button) {
                 this.events.emit('card:select', { id: this._id });
             }
         });
-
-        // Клик на кнопку "Купить"
         this._button.addEventListener('click', (event) => {
             event.stopPropagation();
             this.events.emit('card:add', { id: this._id });
