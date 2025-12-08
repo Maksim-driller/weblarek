@@ -52,8 +52,10 @@ events.on<{ products: IProduct[] }>('products:changed', () => {
     page.catalog = cards;
 });
 
-// Функция для рендера содержимого корзины
-function renderBasket() {
+events.on('cart:changed', () => {
+    page.counter = cartModel.getCount();
+
+    // Обновляем содержимое корзины
     const items = cartModel.getItems();
     const basketCards = items.map((item, index) => {
         const card = new CardBasket(cloneTemplate<HTMLElement>('#card-basket'), events);
@@ -68,10 +70,8 @@ function renderBasket() {
     basketView.items = basketCards;
     basketView.total = cartModel.getTotal();
     basketView.disableButton(cartModel.getCount() === 0);
-}
 
-events.on('cart:changed', () => {
-    page.counter = cartModel.getCount();
+    // Обновляем карточки каталога
     const products = productModel.getProducts();
     const cards = products.map(product => {
         const card = new CardCatalog(cloneTemplate<HTMLElement>('#card-catalog'), events);
@@ -90,13 +90,9 @@ events.on('cart:changed', () => {
     });
 
     page.catalog = cards;
-
-    // Обновляем содержимое корзины
-    renderBasket();
 });
 
 events.on('basket:open', () => {
-    renderBasket();
     modal.content = basketView.render();
     modal.open();
 });
