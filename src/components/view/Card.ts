@@ -1,5 +1,6 @@
 import { Component } from "../base/Component";
 import { IEvents } from '../base/Events';
+import { ensureElement } from '../../utils/utils';
 
 export abstract class Card extends Component<object> {
     protected _id: string = '';
@@ -9,8 +10,8 @@ export abstract class Card extends Component<object> {
     constructor(container: HTMLElement, protected events: IEvents) {
         super(container);
 
-        this._title = container.querySelector('.card__title') as HTMLElement;
-        this._price = container.querySelector('.card__price') as HTMLElement;
+        this._title = ensureElement<HTMLElement>('.card__title', container);
+        this._price = ensureElement<HTMLElement>('.card__price', container);
     }
 
     set id(value: string) {

@@ -1,5 +1,6 @@
 import { Component } from "../base/Component";
 import { IEvents } from '../base/Events';
+import { ensureElement } from '../../utils/utils';
 
 export class Page extends Component<object> {
     private _basketButton: HTMLButtonElement;
@@ -10,10 +11,10 @@ export class Page extends Component<object> {
     constructor(container: HTMLElement, protected events: IEvents) {
         super(container);
 
-        this._basketButton = container.querySelector('.header__basket') as HTMLButtonElement;
-        this._counter = container.querySelector('.header__basket-counter') as HTMLElement;
-        this._gallery = container.querySelector('.gallery') as HTMLElement;
-        this._wrapper = container.querySelector('.page__wrapper') as HTMLElement;
+        this._basketButton = ensureElement<HTMLButtonElement>('.header__basket', container);
+        this._counter = ensureElement<HTMLElement>('.header__basket-counter', container);
+        this._gallery = ensureElement<HTMLElement>('.gallery', container);
+        this._wrapper = ensureElement<HTMLElement>('.page__wrapper', container);
 
         this._basketButton.addEventListener('click', () => {
             this.events.emit('basket:open');

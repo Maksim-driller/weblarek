@@ -16,38 +16,28 @@ import { Basket } from "./components/view/Basket";
 import { OrderForm } from "./components/view/OrderForm";
 import { ContactsForm } from "./components/view/ContactsForm";
 import { Success } from "./components/view/Success";
+import { ensureElement, cloneTemplate } from "./utils/utils";
 
 const events = new EventEmitter();
 const productModel = new Product(events);
 const cartModel = new Cart(events);
 const customerModel = new Customer(events);
 
-const pageContainer = document.querySelector('.page') as HTMLElement;
-const page = new Page(pageContainer, events);
+const page = new Page(ensureElement<HTMLElement>('.page'), events);
+const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 
-const modalContainer = document.querySelector('#modal-container') as HTMLElement;
-const modal = new Modal(modalContainer, events);
-
-const cardCatalogTemplate = document.querySelector('#card-catalog') as HTMLTemplateElement;
-const cardPreviewTemplate = document.querySelector('#card-preview') as HTMLTemplateElement;
-const cardBasketTemplate = document.querySelector('#card-basket') as HTMLTemplateElement;
-const basketTemplate = document.querySelector('#basket') as HTMLTemplateElement;
-const orderTemplate = document.querySelector('#order') as HTMLTemplateElement;
-const contactsTemplate = document.querySelector('#contacts') as HTMLTemplateElement;
-const successTemplate = document.querySelector('#success') as HTMLTemplateElement;
-const basketView = new Basket(basketTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement, events);
-const orderForm = new OrderForm(orderTemplate.content.firstElementChild!.cloneNode(true) as HTMLFormElement, events);
-const contactsForm = new ContactsForm(contactsTemplate.content.firstElementChild!.cloneNode(true) as HTMLFormElement, events);
-
-const successView = new Success(successTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement, events);
+const basketView = new Basket(cloneTemplate<HTMLElement>('#basket'), events);
+const orderForm = new OrderForm(cloneTemplate<HTMLFormElement>('#order'), events);
+const contactsForm = new ContactsForm(cloneTemplate<HTMLFormElement>('#contacts'), events);
+const successView = new Success(cloneTemplate<HTMLElement>('#success'), events);
+const cardPreview = new CardPreview(cloneTemplate<HTMLElement>('#card-preview'), events);
 
 const apiClient = new ApiClient(new Api(API_URL));
 
 events.on<{ products: IProduct[] }>('products:changed', () => {
     const products = productModel.getProducts();
     const cards = products.map(product => {
-        const cardElement = cardCatalogTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
-        const card = new CardCatalog(cardElement, events);
+        const card = new CardCatalog(cloneTemplate<HTMLElement>('#card-catalog'), events);
         card.id = product.id;
         card.title = product.title;
         card.category = product.category;
@@ -62,34 +52,11 @@ events.on<{ products: IProduct[] }>('products:changed', () => {
     page.catalog = cards;
 });
 
-events.on('cart:changed', () => {
-    page.counter = cartModel.getCount();
-    const products = productModel.getProducts();
-    const cards = products.map(product => {
-        const cardElement = cardCatalogTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
-        const card = new CardCatalog(cardElement, events);
-
-        card.id = product.id;
-        card.title = product.title;
-        card.category = product.category;
-        card.image = CDN_URL + product.image;
-        card.price = product.price;
-
-        if (product.price === null || cartModel.hasItem(product.id)) {
-            card.disableButton(true);
-        }
-
-        return card.render();
-    });
-
-    page.catalog = cards;
-});
-
-events.on('basket:open', () => {
+// Функция для рендера содержимого корзины
+function renderBasket() {
     const items = cartModel.getItems();
     const basketCards = items.map((item, index) => {
-        const cardElement = cardBasketTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
-        const card = new CardBasket(cardElement, events);
+        const card = new CardBasket(cloneTemplate<HTMLElement>('#card-basket'), events);
 
         card.id = item.id;
         card.index = index + 1;
@@ -101,6 +68,35 @@ events.on('basket:open', () => {
     basketView.items = basketCards;
     basketView.total = cartModel.getTotal();
     basketView.disableButton(cartModel.getCount() === 0);
+}
+
+events.on('cart:changed', () => {
+    page.counter = cartModel.getCount();
+    const products = productModel.getProducts();
+    const cards = products.map(product => {
+        const card = new CardCatalog(cloneTemplate<HTMLElement>('#card-catalog'), events);
+
+        card.id = product.id;
+        card.title = product.title;
+        card.category = product.category;
+        card.image = CDN_URL + product.image;
+        card.price = product.price;
+
+        if (product.price === null || cartModel.hasItem(product.id)) {
+            card.disableButton(true);
+        }
+
+        return card.render();
+    });
+
+    page.catalog = cards;
+
+    // Обновляем содержимое корзины
+    renderBasket();
+});
+
+events.on('basket:open', () => {
+    renderBasket();
     modal.content = basketView.render();
     modal.open();
 });
@@ -109,27 +105,29 @@ events.on<{ id: string }>('card:select', (data) => {
 
     if (product) {
         productModel.setSelected(product);
-        const cardElement = cardPreviewTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
-        const cardPreview = new CardPreview(cardElement, events);
-
-        cardPreview.id = product.id;
-        cardPreview.title = product.title;
-        cardPreview.category = product.category;
-        cardPreview.image = CDN_URL + product.image;
-        cardPreview.description = product.description;
-        cardPreview.price = product.price;
-        if (cartModel.hasItem(product.id)) {
-            cardPreview.buttonText = 'Удалить из корзины';
-        } else {
-            cardPreview.buttonText = 'В корзину';
-        }
-        if (product.price === null) {
-            cardPreview.disableButton(true);
-        }
-
-        modal.content = cardPreview.render();
-        modal.open();
     }
+});
+
+events.on<IProduct>('product:selected', (product) => {
+    cardPreview.id = product.id;
+    cardPreview.title = product.title;
+    cardPreview.category = product.category;
+    cardPreview.image = CDN_URL + product.image;
+    cardPreview.description = product.description;
+    cardPreview.price = product.price;
+    if (cartModel.hasItem(product.id)) {
+        cardPreview.buttonText = 'Удалить из корзины';
+    } else {
+        cardPreview.buttonText = 'В корзину';
+    }
+    if (product.price === null) {
+        cardPreview.disableButton(true);
+    } else {
+        cardPreview.disableButton(false);
+    }
+
+    modal.content = cardPreview.render();
+    modal.open();
 });
 
 events.on<{ id: string }>('card:add', (data) => {
@@ -155,25 +153,8 @@ events.on<{ id: string }>('card:toBasket', (data) => {
 
 events.on<{ id: string }>('basket:remove', (data) => {
     cartModel.removeItem(data.id);
-    const items = cartModel.getItems();
-    const basketCards = items.map((item, index) => {
-        const cardElement = cardBasketTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
-        const card = new CardBasket(cardElement, events);
-
-        card.id = item.id;
-        card.index = index + 1;
-        card.title = item.title;
-        card.price = item.price;
-
-        return card.render();
-    });
-
-    basketView.items = basketCards;
-    basketView.total = cartModel.getTotal();
-    basketView.disableButton(cartModel.getCount() === 0);
 });
 events.on('basket:order', () => {
-    // Очищаем форму
     orderForm.payment = null as any;
     orderForm.address = '';
     orderForm.valid = false;
@@ -182,23 +163,32 @@ events.on('basket:order', () => {
 });
 events.on<{ payment: 'card' | 'cash' }>('order:payment', (data) => {
     customerModel.payment = data.payment;
-    orderForm.payment = data.payment;
 });
 
 events.on<{ field: string; value: string }>('order:input', (data) => {
     if (data.field === 'address') {
         customerModel.address = data.value;
     }
+});
+events.on('customer:changed', () => {
+    const customerInfo = customerModel.getCustomerInfo();
     const errors = customerModel.validateCustomerInfo();
-    const hasPaymentAndAddress = customerModel.getCustomerInfo().payment && customerModel.getCustomerInfo().address;
 
+    // Валидация формы заказа (payment + address)
+    const hasPaymentAndAddress = customerInfo.payment && customerInfo.address;
+    orderForm.payment = customerInfo.payment;
     orderForm.valid = Boolean(hasPaymentAndAddress);
     orderForm.errors = errors.payment || errors.address || '';
+
+    // Валидация формы контактов (email + phone)
+    const hasEmailAndPhone = customerInfo.email && customerInfo.phone;
+    contactsForm.valid = Boolean(hasEmailAndPhone);
+    contactsForm.errors = errors.email || errors.phone || '';
 });
 events.on('order:submit', () => {
-    // Переходим к форме контактов
-    contactsForm.email = customerModel.getCustomerInfo().email || '';
-    contactsForm.phone = customerModel.getCustomerInfo().phone || '';
+    const customerInfo = customerModel.getCustomerInfo();
+    contactsForm.email = customerInfo.email || '';
+    contactsForm.phone = customerInfo.phone || '';
     contactsForm.valid = false;
     contactsForm.errors = '';
 
@@ -212,11 +202,6 @@ events.on<{ field: string; value: string }>('contacts:input', (data) => {
     if (data.field === 'phone') {
         customerModel.phone = data.value;
     }
-    const errors = customerModel.validateCustomerInfo();
-    const hasEmailAndPhone = customerModel.getCustomerInfo().email && customerModel.getCustomerInfo().phone;
-
-    contactsForm.valid = Boolean(hasEmailAndPhone);
-    contactsForm.errors = errors.email || errors.phone || '';
 });
 events.on('contacts:submit', () => {
     const customerInfo = customerModel.getCustomerInfo();

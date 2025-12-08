@@ -1,6 +1,7 @@
 import { Card } from "./Card";
 import { IEvents } from '../base/Events';
 import { categoryMap } from "../../utils/constants";
+import { ensureElement } from '../../utils/utils';
 
 export class CardCatalog extends Card {
     private _category: HTMLElement;
@@ -10,9 +11,9 @@ export class CardCatalog extends Card {
     constructor(container: HTMLElement, events: IEvents) {
         super(container, events);
 
-        this._category = container.querySelector('.card__category') as HTMLElement;
-        this._image = container.querySelector('.card__image') as HTMLImageElement;
-        this._button = container.querySelector('.card__button') as HTMLButtonElement;
+        this._category = ensureElement<HTMLElement>('.card__category', container);
+        this._image = ensureElement<HTMLImageElement>('.card__image', container);
+        this._button = ensureElement<HTMLButtonElement>('.card__button', container);
         container.addEventListener('click', (event) => {
             if (event.target !== this._button) {
                 this.events.emit('card:select', { id: this._id });

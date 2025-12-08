@@ -1,5 +1,6 @@
 import { Card } from "./Card";
 import { IEvents } from '../base/Events';
+import { ensureElement } from '../../utils/utils';
 
 export class CardBasket extends Card {
     private _index: HTMLElement;
@@ -8,8 +9,8 @@ export class CardBasket extends Card {
     constructor(container: HTMLElement, events: IEvents) {
         super(container, events);
 
-        this._index = container.querySelector('.basket__item-index') as HTMLElement;
-        this._deleteButton = container.querySelector('.basket__item-delete') as HTMLButtonElement;
+        this._index = ensureElement<HTMLElement>('.basket__item-index', container);
+        this._deleteButton = ensureElement<HTMLButtonElement>('.basket__item-delete', container);
         this._deleteButton.addEventListener('click', () => {
             this.events.emit('basket:remove', { id: this._id });
         });

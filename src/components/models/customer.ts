@@ -14,27 +14,27 @@ export class Customer {
         this._address = data.address;
         this._email = data.email;
         this._phone = data.phone;
-        this.events.emit('customer:changed', this.getCustomerInfo());
+        this.events.emit('customer:changed');
     }
 
     set payment(value: TPayment) {
         this._payment = value;
-        this.events.emit('customer:changed', this.getCustomerInfo());
+        this.events.emit('customer:changed');
     }
 
     set address(value: string) {
         this._address = value;
-        this.events.emit('customer:changed', this.getCustomerInfo());
+        this.events.emit('customer:changed');
     }
 
     set email(value: string) {
         this._email = value;
-        this.events.emit('customer:changed', this.getCustomerInfo());
+        this.events.emit('customer:changed');
     }
 
     set phone(value: string) {
         this._phone = value;
-        this.events.emit('customer:changed', this.getCustomerInfo());
+        this.events.emit('customer:changed');
     }
 
     getCustomerInfo(): ICustomer {
@@ -51,7 +51,7 @@ export class Customer {
         this._address = "";
         this._email = "";
         this._phone = "";
-        this.events.emit('customer:changed', this.getCustomerInfo());
+        this.events.emit('customer:changed');
     }
 
     validateCustomerInfo(): Record<string, string> {

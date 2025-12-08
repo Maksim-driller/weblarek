@@ -1,5 +1,6 @@
 import { Form } from "./Form";
 import { IEvents } from '../base/Events';
+import { ensureElement } from '../../utils/utils';
 
 export class ContactsForm extends Form {
     private _emailInput: HTMLInputElement;
@@ -8,8 +9,8 @@ export class ContactsForm extends Form {
     constructor(container: HTMLFormElement, events: IEvents) {
         super(container, events);
 
-        this._emailInput = container.querySelector('input[name="email"]') as HTMLInputElement;
-        this._phoneInput = container.querySelector('input[name="phone"]') as HTMLInputElement;
+        this._emailInput = ensureElement<HTMLInputElement>('input[name="email"]', container);
+        this._phoneInput = ensureElement<HTMLInputElement>('input[name="phone"]', container);
     }
 
     set email(value: string) {

@@ -1,5 +1,6 @@
 import { Component } from "../base/Component";
 import { IEvents } from '../base/Events';
+import { ensureElement } from '../../utils/utils';
 
 export class Basket extends Component<object> {
     private _list: HTMLElement;
@@ -9,9 +10,9 @@ export class Basket extends Component<object> {
     constructor(container: HTMLElement, protected events: IEvents) {
         super(container);
 
-        this._list = container.querySelector('.basket__list') as HTMLElement;
-        this._total = container.querySelector('.basket__price') as HTMLElement;
-        this._button = container.querySelector('.basket__button') as HTMLButtonElement;
+        this._list = ensureElement<HTMLElement>('.basket__list', container);
+        this._total = ensureElement<HTMLElement>('.basket__price', container);
+        this._button = ensureElement<HTMLButtonElement>('.basket__button', container);
         this._button.addEventListener('click', () => {
             this.events.emit('basket:order');
         });
