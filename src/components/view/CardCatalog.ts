@@ -14,14 +14,8 @@ export class CardCatalog extends Card {
         this._category = ensureElement<HTMLElement>('.card__category', container);
         this._image = ensureElement<HTMLImageElement>('.card__image', container);
         this._button = ensureElement<HTMLButtonElement>('.card__button', container);
-        container.addEventListener('click', (event) => {
-            if (event.target !== this._button) {
-                this.events.emit('card:select', { id: this._id });
-            }
-        });
-        this._button.addEventListener('click', (event) => {
-            event.stopPropagation();
-            this.events.emit('card:add', { id: this._id });
+        container.addEventListener('click', () => {
+            this.events.emit('card:select', { id: this._id });
         });
     }
 

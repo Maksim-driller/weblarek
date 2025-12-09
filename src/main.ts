@@ -70,26 +70,6 @@ events.on('cart:changed', () => {
     basketView.items = basketCards;
     basketView.total = cartModel.getTotal();
     basketView.disableButton(cartModel.getCount() === 0);
-
-    // Обновляем карточки каталога
-    const products = productModel.getProducts();
-    const cards = products.map(product => {
-        const card = new CardCatalog(cloneTemplate<HTMLElement>('#card-catalog'), events);
-
-        card.id = product.id;
-        card.title = product.title;
-        card.category = product.category;
-        card.image = CDN_URL + product.image;
-        card.price = product.price;
-
-        if (product.price === null || cartModel.hasItem(product.id)) {
-            card.disableButton(true);
-        }
-
-        return card.render();
-    });
-
-    page.catalog = cards;
 });
 
 events.on('basket:open', () => {
@@ -124,14 +104,6 @@ events.on<IProduct>('product:selected', (product) => {
 
     modal.content = cardPreview.render();
     modal.open();
-});
-
-events.on<{ id: string }>('card:add', (data) => {
-    const product = productModel.getProductById(data.id);
-
-    if (product && product.price !== null) {
-        cartModel.addItem(product);
-    }
 });
 
 events.on<{ id: string }>('card:toBasket', (data) => {
