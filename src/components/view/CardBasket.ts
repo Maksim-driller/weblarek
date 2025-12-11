@@ -8,7 +8,6 @@ export class CardBasket extends Card {
 
     constructor(container: HTMLElement, events: IEvents) {
         super(container, events);
-
         this._index = ensureElement<HTMLElement>('.basket__item-index', container);
         this._deleteButton = ensureElement<HTMLButtonElement>('.basket__item-delete', container);
         this._deleteButton.addEventListener('click', () => {

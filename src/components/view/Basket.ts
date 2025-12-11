@@ -9,13 +9,14 @@ export class Basket extends Component<object> {
 
     constructor(container: HTMLElement, protected events: IEvents) {
         super(container);
-
         this._list = ensureElement<HTMLElement>('.basket__list', container);
         this._total = ensureElement<HTMLElement>('.basket__price', container);
         this._button = ensureElement<HTMLButtonElement>('.basket__button', container);
         this._button.addEventListener('click', () => {
             this.events.emit('basket:order');
         });
+        this.items = [];
+        this.disableButton(true);
     }
 
     set items(items: HTMLElement[]) {
